@@ -73,6 +73,12 @@ namespace UnityTemplateProjects
 
         [Tooltip("Whether or not to invert our Y axis for mouse input to rotation.")]
         public bool invertY = false;
+        [SerializeField, Tooltip("joystick rotate threshold")]
+        public float joystickRotateThreshold = 0.1f;
+        [SerializeField, Tooltip("joystick rotate X")]
+        public string joystickRotateX = "JoystickRotateX";
+        [SerializeField, Tooltip("joystick rotate Y")]
+        public string joystickRotateY = "JoystickRotateY";
 
 #if ENABLE_INPUT_SYSTEM
         InputAction movementAction;
@@ -235,7 +241,11 @@ namespace UnityTemplateProjects
 #if ENABLE_INPUT_SYSTEM
             return lookAction.ReadValue<Vector2>();
 #else
-            return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 10;
+            bool useJoystick = Mathf.Abs(Input.GetAxis(joystickRotateX)) > joystickRotateThreshold || Mathf.Abs(Input.GetAxis(joystickRotateY)) > joystickRotateThreshold;
+            var x = useJoystick ? Input.GetAxis(joystickRotateX) : Input.GetAxis("Mouse X");
+            var y = useJoystick ? Input.GetAxis(joystickRotateY) : Input.GetAxis("Mouse Y");
+            Debug.Log(string.Format("Rotate: X: {0}, Y: {1}", x, y));
+            return new Vector2(x, y) * 10;
 #endif
         }
 
@@ -263,11 +273,12 @@ namespace UnityTemplateProjects
         bool IsCameraRotationAllowed()
         {
 #if ENABLE_INPUT_SYSTEM
+            if (Mathf.Abs(Input.GetAxis(joystickRotateY)) > joystickRotateThreshold || Mathf.Abs(Input.GetAxis("JoystickRotateY")) > joystickRotateThreshold) return true;
             bool canRotate = Mouse.current != null ? Mouse.current.rightButton.isPressed : false;
             canRotate |= Gamepad.current != null ? Gamepad.current.rightStick.ReadValue().magnitude > 0 : false;
             return canRotate;
 #else
-            return Input.GetMouseButton(1);
+            return Input.GetMouseButton(1) || Mathf.Abs(Input.GetAxis(joystickRotateY)) > joystickRotateThreshold || Mathf.Abs(Input.GetAxis("JoystickRotateY")) > joystickRotateThreshold;
 #endif
         }
 

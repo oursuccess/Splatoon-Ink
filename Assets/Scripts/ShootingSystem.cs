@@ -13,6 +13,8 @@ public class ShootingSystem : MonoBehaviour
     [SerializeField] Transform parentController;
     [SerializeField] Transform splatGunNozzle;
     [SerializeField] CinemachineFreeLook freeLookCamera;
+    [SerializeField, Tooltip("开火键")]
+    private string fireButtonName = "Fire1";
     CinemachineImpulseSource impulseSource;
 
     void Start()
@@ -24,18 +26,18 @@ public class ShootingSystem : MonoBehaviour
     void Update()
     {
         Vector3 angle = parentController.localEulerAngles;
-        input.blockRotationPlayer = Input.GetMouseButton(0);
-        bool pressing = Input.GetMouseButton(0);
+        input.blockRotationPlayer = Input.GetButton(fireButtonName);
+        bool pressing = Input.GetButton(fireButtonName);
 
-        if (Input.GetMouseButton(0))
+        if (Input.GetButton(fireButtonName))
         {
             VisualPolish();
             input.RotateToCamera(transform);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetButtonDown(fireButtonName))
             inkParticle.Play();
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetButtonUp(fireButtonName))
             inkParticle.Stop();
 
         parentController.localEulerAngles
